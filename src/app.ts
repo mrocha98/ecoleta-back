@@ -34,7 +34,7 @@ class App {
     const uploadsPath =
       process.env.NODE_ENV === 'development'
         ? path.resolve(__dirname, '..', 'uploads')
-        : path.resolve(__dirname, '..', 'src', 'uploads');
+        : path.resolve(__dirname, '..', '..', 'uploads');
     this.server.use('/uploads', express.static(uploadsPath));
   }
 }

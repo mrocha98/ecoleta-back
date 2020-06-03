@@ -17,12 +17,14 @@ async function testDatabaseConnection(): Promise<void> {
     });
 }
 
-const { PORT, HOST } = process.env;
+const { PORT, HOST, NODE_ENV, URL } = process.env;
+
+const listenLog = () => (NODE_ENV === 'development' ? `${HOST}:${PORT}` : URL);
 
 function startServer() {
   console.log('==========\t\tECOLETA SERVER\t\t==========\n');
   testDatabaseConnection().then(() => {
-    console.log(`Listening on... ${HOST}:${PORT}\n\n`);
+    console.log(`Listening on... ${listenLog()}\n\n`);
     app.listen(Number(PORT));
   });
 }

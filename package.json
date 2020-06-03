@@ -1,21 +1,30 @@
 {
   "name": "ecoleta-back",
   "version": "1.0.0",
-  "main": "src/server.ts",
+  "main": "dist/src/server.js",
   "repository": "git@github.com:mrocha98/ecoleta-back.git",
   "author": "Matheus Rocha <matheus_rocha98@outlook.com>",
   "license": "BSD-2-Clause",
   "scripts": {
-    "start:dev": "cross-env NODE_ENV=development ts-node-dev src/server.ts",
-    "start": "node src/server.ts"
+    "build": "tsc",
+    "db:migrate": "knex --knexfile knexfile.ts migrate:latest",
+    "db:rollback": "knex --knexfile knexfile.ts migrate:rollback",
+    "db:seed": "knex --knexfile knexfile.ts seed:run",
+    "heroku-postbuild": "yarn db:migrate && yarn db:seed",
+    "prestart": "yarn build",
+    "start:dev": "cross-env NODE_ENV=development ts-node-dev --transpileOnly --ignore-watch node_modules src/server.ts",
+    "start": "node dist/src/server.js"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.2",
     "express": "^4.17.1",
     "helmet": "^3.22.0",
     "http-status-codes": "^1.4.0",
-    "morgan": "^1.10.0"
+    "knex": "^0.21.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.2.1"
   },
   "config": {
     "commitizen": {
@@ -50,8 +59,7 @@
     "typescript": "^3.9.3"
   },
   "engines": {
-    "node": "12.17.0",
-    "npm": "6.14.4",
-    "yarn": "1.22.4"
+    "node": "12.17.x",
+    "yarn": "1.22.x"
   }
 }

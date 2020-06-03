@@ -34,6 +34,11 @@ module.exports = {
         tsx: 'never',
       },
     ],
+    'import/prefer-default-export': 'off',
     'no-console': 'off',
+    camelcase: 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    'class-methods-use-this': 'off',
+    'consistent-return': 'off',
   },
 };

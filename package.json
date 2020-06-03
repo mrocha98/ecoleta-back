@@ -11,7 +11,7 @@
     "db:rollback": "knex --knexfile knexfile.ts migrate:rollback",
     "db:seed": "knex --knexfile knexfile.ts seed:run",
     "heroku-postbuild": "yarn db:migrate && yarn db:seed",
-    "prestart": "yarn build",
+    "postinstall": "yarn build",
     "start:dev": "cross-env NODE_ENV=development ts-node-dev --transpileOnly --ignore-watch node_modules src/server.ts",
     "start": "node dist/src/server.js"
   },

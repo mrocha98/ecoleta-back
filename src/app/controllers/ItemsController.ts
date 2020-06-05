@@ -9,7 +9,7 @@ class ItemsController {
     const { HOST, PORT, NODE_ENV, URL } = process.env;
 
     const getParsedImageURL = (image: string) =>
-      NODE_ENV === 'development' ? `http://${HOST}:${PORT}/${image}` : `${URL}/${image}`;
+      NODE_ENV === 'development' ? `http://${HOST}:${PORT}/uploads/${image}` : `${URL}/uploads/${image}`;
     const serializedItems = items?.map(({ id, title, image }) => {
       return {
         id,

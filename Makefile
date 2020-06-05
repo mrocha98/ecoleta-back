@@ -5,12 +5,12 @@ include .env
 up:
 	docker-compose up -d
 
-.PHONY: down
+.PHONY: logs
 
 logs:
 	docker-compose logs -f
 
-.PHONY: down
+.PHONY: stop
 
 stop:
 	docker-compose stop

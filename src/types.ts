@@ -23,5 +23,5 @@ export interface ItemPerPoint {
 }
 
 export interface PointsBody extends Point {
-  items: number[];
+  items: string;
 }

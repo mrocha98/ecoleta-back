@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { OK, CREATED, BAD_REQUEST, NOT_FOUND } from 'http-status-codes';
 import { PointsBody } from '../../types';
 import knex from '../../database/connection';
+import parseImageURL from '../../utils/parseImageUrl';
 
 class PointsController {
   async index(req: Request, res: Response) {
@@ -10,8 +11,6 @@ class PointsController {
     const parsedItems = String(items)
       .split(',')
       .map((item) => Number(item.trim()));
-
-    console.log(parsedItems);
 
     const points = await knex
       .from('points')
@@ -22,7 +21,11 @@ class PointsController {
       .distinct()
       .select('points.*');
 
-    return res.status(OK).json(points);
+    const serializedPoints = points.map((point) => {
+      return { ...point, image_url: parseImageURL(point.image) };
+    });
+
+    return res.status(OK).json(serializedPoints);
   }
 
   async show(req: Request, res: Response) {
@@ -33,13 +36,18 @@ class PointsController {
 
     if (!point) return res.status(NOT_FOUND).json({ message: 'Ponto não encontrado' });
 
+    const serializedPoint = {
+      ...point,
+      image_url: parseImageURL(point.image),
+    };
+
     const items = await knex
       .from('items')
       .join('points_items', 'items.id', '=', 'points_items.item_id')
       .where('points_items.point_id', id)
       .select(['items.title']);
 
-    return res.status(OK).json({ point, items });
+    return res.status(OK).json({ point: serializedPoint, items });
   }
 
   async create(req: Request, res: Response) {
@@ -51,16 +59,10 @@ class PointsController {
     const locationExists = await knex.from('points').where({ latitude }).andWhere({ longitude }).select('id').first();
     if (locationExists) return res.status(BAD_REQUEST).json({ message: 'Essa localização já foi cadastrada' });
 
-    const validItems = await knex.from('items').whereIn('id', items).select('id');
-    const someItemAreInvalid = validItems.length !== items.length;
-    if (someItemAreInvalid)
-      return res.status(BAD_REQUEST).json({ message: 'Um dos items fornecidos não foi previamente cadastrado' });
-
     try {
       await knex.transaction(async (trx) => {
         const point = {
-          image:
-            'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
+          image: req.file?.filename || 'dummy-image.jpg',
           name,
           email,
           whatsapp,
@@ -73,7 +75,9 @@ class PointsController {
         const insrtedIds = await trx('points').insert(point).returning('id');
         const point_id = insrtedIds[0];
 
-        const pointItems = items.map((item_id: number) => {
+        const parsedItems = items.split(',').map((item) => Number(item));
+
+        const pointItems = parsedItems.map((item_id: number) => {
           return {
             item_id,
             point_id,
@@ -84,6 +88,7 @@ class PointsController {
         return res.status(CREATED).json({ id: point_id, ...point });
       });
     } catch (err) {
+      console.log(err);
       return res.sendStatus(BAD_REQUEST);
     }
   }
